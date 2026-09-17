@@ -40,10 +40,12 @@ Always leave the code better than you found it. Perform one of the following in 
 - Mutation testing, use a analysis tool to perform mutant hunting on the modified files. For example Cosmic Ray in Python or Striker in Angular.
 
 ## Single Loop Learning
+Learn from the tasks you complete:
 Always end all of our chats with a list of skills that you used.
 Always create new skills in your skills folder that you wish you had before starting the prompt. Actually write the file now.
 
 ## Double Loop Learning
+Learn from the process improvement opportunities:
 Always evaluate the the process used here using a lens of Lean Software Development, Agile, Systems Thinking, Safety, Security, and Continuous Improvement. 
 Always make the changes to the AGENTS.md with these changes. Update this very list you are reading now.
 

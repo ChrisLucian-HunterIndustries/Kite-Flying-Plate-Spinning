@@ -41,10 +41,11 @@ Always leave the code better than you found it. Perform one of the following in 
 
 ## Single Loop Learning
 Always end all of our chats with a list of skills that you used.
-Always create new skills you wish you had before starting the prompt.
+Always create new skills in your skills folder that you wish you had before starting the prompt.
 
 ## Double Loop Learning
 Always evaluate the the process used here using a lens of Lean Software Development, Agile, Systems Thinking, Safety, Security, and Continuous Improvement. 
+Always make the changes to the AGENTS.md with these changes. Update this very list you are reading now.
 
 ## Canary
 Always end all of our chats with 🪁 Emoji

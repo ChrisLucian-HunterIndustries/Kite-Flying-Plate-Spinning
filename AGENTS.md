@@ -1,13 +1,43 @@
 # Agent Instructions
+Always create the below checklist for every prompt:
 
 ## Checklist Manifesto
 Always use your checklist or todo list tool to track items. Do not leave it to chance that you will remember later.
 Immediately before implementing any prompts set up the following tasks as a checklist.
+- Prod Check
+- Preparatory Unit Test Coverage
 - Make it easy to change (which may be hard) (refactoring)
 - Make the easy change
+- Security Review
+- Scout Rule
 - Single Loop Learning
 - Double Loop Learning
 - Canary
+
+## Prod Check
+When applicable, evaluate the existing health of the production system.
+
+## Preparatory Unit Test Coverage
+Ensure the area that will be changed has approrpriate characterization tests making it safe to refactor.
+Ensure characterization tests pass before starting any refactoring. 
+
+## Make it easy to change (which may be hard)
+Refactor to common computer science grounded design patterns.
+The resulting code should be easy to read, limited in file length, appropriately decoupled, and cohesive.
+
+## Make the easy change
+Complete the prompt considering YAGNI and DRY concepts in software development. 
+
+## Security Review
+Evaluate for common OWASP pitfalls.
+Run automated audits like pip audit, npm audit and correct package issues.
+Evaluate for harder to detect problems with the system such as IDOR vulnerabilities.
+
+## Scout Rule
+Always leave the code better than you found it. Perform one of the following in priority order each time a prompt leads you to this area of the code.
+- Evaluate Code Coverage and add more complete tests
+- File length gate, reduce the file length of the files when over 500 lines by refactoring
+- Mutation testing, use a analysis tool to perform mutant hunting on the modified files. For example Cosmic Ray in Python or Striker in Angular.
 
 ## Single Loop Learning
 Always end all of our chats with a list of skills that you used.

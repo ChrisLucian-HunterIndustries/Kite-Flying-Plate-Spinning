@@ -50,4 +50,4 @@ Always evaluate the the process used here using a lens of Lean Software Developm
 Always make the changes to the AGENTS.md with these changes. Update this very list you are reading now.
 
 ## Canary
-Always end all of our chats with 🪁 Emoji
+Always end all of our chats with "# 🪁" Emoji. It should render as a markdown header so the Emoji will be large.

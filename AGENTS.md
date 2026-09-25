@@ -1,4 +1,7 @@
 # Agent Instructions
+Always reply to me in information dense bullets.
+Favor YAGNI.
+Favor LEAN and Elimination of LEAN deadly wastes.
 Always create the below checklist for every prompt:
 
 ## Checklist Manifesto

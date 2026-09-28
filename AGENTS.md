@@ -46,6 +46,8 @@ Always leave the code better than you found it. Perform one of the following in 
 Learn from the tasks you complete:
 Always end all of our chats with a list of skills that you used.
 Always create new skills in your skills folder that you wish you had before starting the prompt. Actually write the file now.
+Always end all of our chats with a list of MCP servers that you used.
+Always create new MCP servers that you wish you had before starting the prompt. Actually write the server now.
 
 ## Double Loop Learning
 Learn from the process improvement opportunities:

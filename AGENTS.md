@@ -9,6 +9,7 @@ Always use your checklist or todo list tool to track items. Do not leave it to c
 Immediately before implementing any prompts set up the following tasks as a checklist.
 - Prod Check
 - Preparatory Unit Test Coverage
+- Prepare a list of code smells to reference in the next step
 - Make it easy to change (which may be hard) (refactoring)
 - Make the easy change
 - Security Review

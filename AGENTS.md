@@ -52,7 +52,7 @@ Always create new MCP servers that you wish you had before starting the prompt. 
 
 ## Double Loop Learning
 Learn from the process improvement opportunities:
-Always evaluate the the process used here using a lens of Lean Software Development, Agile, Systems Thinking, Safety, Security, and Continuous Improvement. 
+Always evaluate the process used here using a lens of Lean Software Development, Agile, Systems Thinking, Safety, Security, and Continuous Improvement. 
 Always make the changes to the AGENTS.md with these changes. Update this very list you are reading now.
 
 ## Canary

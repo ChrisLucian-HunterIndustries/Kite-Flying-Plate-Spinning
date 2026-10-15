@@ -1,0 +1,13 @@
+{
+	"servers": {
+		"racn": {
+			"command": "mise",
+			"args": [
+				"-C",
+				"c:\\Code\\RiskAwareCommitNotationMcp",
+				"run",
+				"run"
+			]
+		}
+	}
+}

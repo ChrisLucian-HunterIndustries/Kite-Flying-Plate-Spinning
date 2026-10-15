@@ -71,7 +71,21 @@
     return '.github/skills/' + name + '/SKILL.md';
   }
 
+  function bundleFiles(data, windIds, skillNames, mcpNames) {
+    var names = function (key, picked) {
+      return included(data.winds, windIds, picked, key).map(function (a) { return a.name; });
+    };
+    var files = [{ path: 'AGENTS.md', content: composeAgentsMd(data.winds, windIds, skillNames, mcpNames) }];
+    var mcpJson = composeMcpJson(data.mcp, names('mcp', mcpNames));
+    if (mcpJson) files.push({ path: '.vscode/mcp.json', content: mcpJson });
+    names('skills', skillNames).forEach(function (n) {
+      files.push({ path: skillPath(n), content: data.skills[n].content });
+    });
+    return files;
+  }
+
   return {
-    composeAgentsMd: composeAgentsMd, composeMcpJson: composeMcpJson, included: included, skillPath: skillPath,
+    composeAgentsMd: composeAgentsMd, composeMcpJson: composeMcpJson, included: included,
+    skillPath: skillPath, bundleFiles: bundleFiles,
   };
 });

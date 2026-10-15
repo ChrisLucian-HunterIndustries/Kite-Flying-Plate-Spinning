@@ -26,6 +26,7 @@
 #kite-cfg details{border:1px solid #f3c58b;border-radius:8px;margin:6px 0;padding:6px 10px;background:#fffaf2}
 #kite-cfg summary{cursor:pointer;font-family:ui-monospace,Consolas,monospace}
 #kite-cfg .kc-empty{opacity:.7;font-style:italic}
+#kite-cfg .kc-float{position:fixed;right:16px;bottom:16px;z-index:2147483000;padding:10px 16px;border-radius:999px;font-weight:600;box-shadow:0 4px 14px rgba(0,0,0,.25)}
 </style>
 <h3>&#x1FA81; Kite Configurator</h3>
 <p>Check the <strong>wind</strong> that holds your AGENTS.md kite aloft. Add a skill or MCP server to give a wind element extra lift.</p>
@@ -59,17 +60,20 @@
 <ul data-kc-mcp-list></ul>
 </div>
 <p class="kc-empty" data-kc-mcp-empty>No MCP servers selected.</p>
+<button type="button" class="kc-primary kc-float" data-kc-download="all" hidden title="AGENTS.md, .vscode/mcp.json, and .github/skills/ in one zip"></button>
 <script>
 //<![CDATA[
-/*__KITE_COMPOSE__*/
+/*__KITE_MODULES__*/
 (function () {
   'use strict';
   var DATA = /*__KITE_DATA__*/;
   var C = window.KiteCompose;
+  var Z = window.KiteZip;
   var root = document.getElementById('kite-cfg');
   var $ = function (sel) { return root.querySelector(sel); };
   var state = { wind: new Set(), skill: new Set(), mcp: new Set() };
   var OUTPUTS = { agents: 'AGENTS.md', mcp: 'mcp.json' };
+  var ZIP_NAME = 'kite-agents.zip';
   var output = function (name) { return $('[data-kc-output="' + name + '"]'); };
 
   function el(tag, attrs, children) {
@@ -124,8 +128,8 @@
     root.removeChild(area);
   }
 
-  function download(fileName, text) {
-    var url = URL.createObjectURL(new Blob([text], { type: 'text/markdown;charset=utf-8' }));
+  function download(fileName, data, type) {
+    var url = URL.createObjectURL(new Blob([data], { type: type || 'text/markdown;charset=utf-8' }));
     var link = el('a', { href: url, download: fileName });
     root.appendChild(link);
     link.click();
@@ -157,10 +161,27 @@
     ]);
   }
 
+  function selection() {
+    return [Array.from(state.wind), Array.from(state.skill), Array.from(state.mcp)];
+  }
+
+  function downloadAll() {
+    var s = selection();
+    download(ZIP_NAME, Z.createZip(C.bundleFiles(DATA, s[0], s[1], s[2])), 'application/zip');
+  }
+
+  function followWhileVisible(button) {
+    if (!('IntersectionObserver' in window)) { button.hidden = false; return; }
+    new IntersectionObserver(function (entries) {
+      button.hidden = !entries[0].isIntersecting;
+    }).observe(root);
+  }
+
   function render() {
-    var windIds = Array.from(state.wind);
-    var skillNames = Array.from(state.skill);
-    var mcpNames = Array.from(state.mcp);
+    var s = selection();
+    var windIds = s[0];
+    var skillNames = s[1];
+    var mcpNames = s[2];
     root.querySelectorAll('[data-kc-check]').forEach(function (box) {
       var kind = box.getAttribute('data-kc-check');
       box.checked = state[kind].has(box.value);
@@ -182,6 +203,9 @@
     var mcpList = $('[data-kc-mcp-list]');
     mcpList.textContent = '';
     servers.forEach(function (s) { mcpList.appendChild(mcpItem(s)); });
+
+    var count = C.bundleFiles(DATA, windIds, skillNames, mcpNames).length;
+    $('[data-kc-download="all"]').textContent = '\u2B07 Download all (.zip, ' + count + (count === 1 ? ' file)' : ' files)');
   }
 
   var presets = {
@@ -213,10 +237,12 @@
     var save = e.target.getAttribute('data-kc-download');
     if (OUTPUTS[copy]) copyText(output(copy).value, e.target);
     if (OUTPUTS[save]) download(OUTPUTS[save], output(save).value);
+    if (save === 'all') downloadAll();
   });
 
   presets.defaults();
   render();
+  followWhileVisible($('[data-kc-download="all"]'));
 })();
 //]]>
 </script>

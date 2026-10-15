@@ -21,6 +21,11 @@ test('the template warns not to paste it and points at the built file', () => {
   assert.match(firstLine, / pastable-kite-configurator\.html /);
 });
 
+test('the zip writer is inlined and a Download all button is wired up', () => {
+  assert.match(snippet, /root\.KiteZip = factory\(\)/);
+  assert.match(snippet, /data-kc-download="all"/);
+});
+
 test('snippet is a self-contained fragment for Blogger', () => {
   assert.doesNotMatch(snippet, /<html|<head|<body|<link/i);
   assert.doesNotMatch(snippet, /\s(src|href)\s*=\s*["']?(https?:)?\/\//i);

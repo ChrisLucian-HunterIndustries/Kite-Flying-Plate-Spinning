@@ -29,6 +29,8 @@ bump the SHA deliberately after reviewing the upstream diff.
 wind element, skill, and MCP server are inlined - no other files, CDNs, or uploads needed.
 Check wind elements, optionally add their skills and MCP servers, then copy/download `AGENTS.md`, each `SKILL.md`
 (save skills to `.github/skills/<name>/SKILL.md`), and `.vscode/mcp.json` (needs [uv](https://docs.astral.sh/uv/)).
+The floating **Download all** button (visible while the configurator is on screen) saves everything as
+`kite-agents.zip`, laid out to unzip straight into a repo root: `AGENTS.md`, `.vscode/mcp.json`, `.github/skills/`.
 
 The other files in `configurator/` (`template.html`, `compose.js`, ...) are build sources. Do not paste those.
 

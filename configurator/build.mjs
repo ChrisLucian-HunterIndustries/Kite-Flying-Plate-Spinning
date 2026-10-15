@@ -19,11 +19,12 @@ export function toSafeScriptJson(value) {
 
 export function buildSnippet(windDir = new URL('../wind/', here)) {
   const template = readFileSync(new URL('template.html', here), 'utf8').replace(/\r\n/g, '\n');
-  const compose = readFileSync(new URL('compose.js', here), 'utf8').replace(/\r\n/g, '\n').trimEnd();
+  const source = (file) => readFileSync(new URL(file, here), 'utf8').replace(/\r\n/g, '\n').trimEnd();
+  const modules = ['compose.js', 'zip.js'].map(source).join('\n');
   const data = toSafeScriptJson(loadWindBundle(windDir));
   return template
     .replace(/^<!--.*-->/, () => PASTE_HEADER)
-    .replace('/*__KITE_COMPOSE__*/', () => compose)
+    .replace('/*__KITE_MODULES__*/', () => modules)
     .replace('/*__KITE_DATA__*/', () => data);
 }
 

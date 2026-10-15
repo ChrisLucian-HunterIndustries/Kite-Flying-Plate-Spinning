@@ -110,6 +110,18 @@ test('every MCP server runs from a git commit pinned by full SHA (supply chain, 
   }
 });
 
+test('bundleFiles lays out AGENTS.md, .vscode/mcp.json, and skills for the selected winds only', () => {
+  const files = compose.bundleFiles(bundle, ids('small-safe-commits', 'canary'), ['small-safe-commits', 'tdd-cycle'], ['racn', 'tdd']);
+  assert.deepEqual(files.map((f) => f.path), ['AGENTS.md', '.vscode/mcp.json', '.github/skills/small-safe-commits/SKILL.md']);
+  assert.equal(files[0].content, compose.composeAgentsMd(bundle.winds, ids('small-safe-commits', 'canary'), ['small-safe-commits', 'tdd-cycle'], ['racn', 'tdd']));
+  assert.deepEqual(Object.keys(JSON.parse(files[1].content).servers), ['racn']);
+  assert.equal(files[2].content, bundle.skills['small-safe-commits'].content);
+});
+
+test('bundleFiles omits mcp.json when no server is selected', () => {
+  assert.deepEqual(compose.bundleFiles(bundle, ids('canary'), [], []).map((f) => f.path), ['AGENTS.md']);
+});
+
 test('skillPath points at the Copilot skills folder', () => {
   assert.equal(compose.skillPath('tdd-cycle'), '.github/skills/tdd-cycle/SKILL.md');
 });

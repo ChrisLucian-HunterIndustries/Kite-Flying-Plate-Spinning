@@ -1,6 +1,7 @@
 import { test } from 'node:test';
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
+import { spawnSync } from 'node:child_process';
 import vm from 'node:vm';
 import { buildSnippet, toSafeScriptJson, OUTPUT } from '../configurator/build.mjs';
 
@@ -24,6 +25,25 @@ test('the template warns not to paste it and points at the built file', () => {
 test('the zip writer is inlined and a Download all button is wired up', () => {
   assert.match(snippet, /root\.KiteZip = factory\(\)/);
   assert.match(snippet, /data-kc-download="all"/);
+});
+
+test('snippet is well-formed XML so Blogger layout gadgets accept it', (t) => {
+  const parser = [
+    'import sys, xml.etree.ElementTree as ET',
+    'ET.fromstring(b"<gadget>" + sys.stdin.buffer.read() + b"</gadget>")',
+  ].join('\n');
+  const run = spawnSync('python', ['-c', parser], { input: snippet, encoding: 'utf8' });
+  if (run.error) return t.skip('python not available');
+  assert.equal(run.status, 0, run.stderr);
+});
+
+test('inlined code cannot end the CDATA section early', () => {
+  assert.equal(snippet.split(']]>').length - 1, 1);
+});
+
+test('markup has no empty elements that an XML round-trip could collapse to <tag/>', () => {
+  const markup = snippet.slice(0, snippet.indexOf('<script>'));
+  assert.deepEqual(markup.match(/<([a-z0-9]+)\b[^<>]*><\/\1>/g) ?? [], []);
 });
 
 test('snippet is a self-contained fragment for Blogger', () => {

@@ -36,8 +36,12 @@ The other files in `configurator/` (`template.html`, `compose.js`, ...) are buil
 
 ### Hosting on Blogger (or similar)
 1. Open [configurator/pastable-kite-configurator.html](./configurator/pastable-kite-configurator.html) and copy the whole file (on GitHub: **Raw**, then select all).
-2. Blogger: **Layout -> Add a Gadget -> HTML/JavaScript**, or a post's **HTML view**, and paste.
-3. If line breaks get converted to `<br>`, turn off *Settings -> Formatting -> Convert line breaks*.
+2. Paste it into **one** of:
+   - **Layout -> Add a Gadget -> HTML/JavaScript** -> *Content* box -> **Save**, or
+   - a post or page, switched to **HTML view** (the `<>` toggle), then **Publish**.
+3. **Not** *Theme -> Edit HTML*: that editor replaces your whole theme and fails with
+   "There should be one and only one skin in the theme, and we found: 0".
+4. If line breaks get converted to `<br>`, turn off *Settings -> Formatting -> Convert line breaks*.
 
 ### Editing wind
 1. Edit or add files in `wind/` (and `wind/skills/<name>/SKILL.md` or `wind/mcp/<name>.json`).

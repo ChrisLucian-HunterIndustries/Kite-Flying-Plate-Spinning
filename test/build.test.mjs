@@ -14,6 +14,7 @@ test('committed pastable-kite-configurator.html is up to date (run npm run build
 test('the single paste-ready file lives in configurator/ and says to paste it', () => {
   assert.equal(OUTPUT.href, new URL('../configurator/pastable-kite-configurator.html', import.meta.url).href);
   assert.match(snippet.split('\n')[0], /^<!-- Kite Configurator: paste this whole file/);
+  assert.match(snippet.split('\n')[0], /NOT into Theme > Edit HTML/);
 });
 
 test('the template warns not to paste it and points at the built file', () => {

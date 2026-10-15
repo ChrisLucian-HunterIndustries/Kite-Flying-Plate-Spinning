@@ -33,7 +33,7 @@ The resulting code should be easy to read, limited in file length, appropriately
 Complete the prompt considering YAGNI and DRY concepts in software development. 
 
 ## Security Review
-Evaluate for common OWASP pitfalls.
+Evaluate for common OWASP pitfalls using the current OWASP Top 10 lists that fit the system (Web, Agentic, IoT).
 Run automated audits like pip audit, npm audit and correct package issues.
 Evaluate for harder to detect problems with the system such as IDOR vulnerabilities.
 

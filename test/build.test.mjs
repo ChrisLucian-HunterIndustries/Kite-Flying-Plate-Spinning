@@ -11,7 +11,8 @@ test('committed kite-configurator.html is up to date (run npm run build)', () =>
 });
 
 test('snippet is a self-contained fragment for Blogger', () => {
-  assert.doesNotMatch(snippet, /<html|<head|<body|<link|src=|https?:\/\//i);
+  assert.doesNotMatch(snippet, /<html|<head|<body|<link/i);
+  assert.doesNotMatch(snippet, /\s(src|href)\s*=\s*["']?(https?:)?\/\//i);
   assert.doesNotMatch(snippet, /__KITE_/);
   assert.match(snippet, /\/\/<!\[CDATA\[[\s\S]*\/\/\]\]>/);
 });

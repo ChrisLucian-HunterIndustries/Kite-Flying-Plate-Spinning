@@ -1,6 +1,6 @@
 ---
 name: security-review-owasp
-description: Use when reviewing a change for security - to walk the OWASP Top 10, run dependency audits, and hunt for authorization flaws such as IDOR.
+description: Use when reviewing a change for security - to run dependency and secret audits, hunt for authorization flaws such as IDOR, and hand off to the OWASP Top 10 walk.
 ---
 # Security Review (OWASP)
 
@@ -8,19 +8,10 @@ description: Use when reviewing a change for security - to walk the OWASP Top 10
 - Dependencies: `npm audit`, `pip-audit`, `dotnet list package --vulnerable`, or the ecosystem equivalent. Fix or document every high/critical.
 - Secrets: scan the diff for keys, tokens, and connection strings.
 
-## Manual walk (OWASP Top 10)
-| Risk | Question to ask of the diff |
-|---|---|
-| Broken Access Control / IDOR | Can a user change an id in a request and reach another user's data? |
-| Cryptographic Failures | Is sensitive data sent or stored unencrypted? |
-| Injection / XSS | Is any input concatenated into SQL, shell, HTML (`innerHTML`), or templates? |
-| Insecure Design | Are there missing rate limits or trust boundaries? |
-| Security Misconfiguration | Debug flags, permissive CORS, default credentials? |
-| Vulnerable Components | Covered by the automated audit above. |
-| Auth Failures | Session expiry, MFA, credential storage. |
-| Integrity Failures | Unsigned updates, untrusted deserialization, CI supply chain. |
-| Logging Failures | Are security events logged without logging secrets? |
-| SSRF | Can input control a server-side URL fetch? |
+## Manual
+- IDOR: for every id, key, or path a caller supplies, prove the server checks the caller may access that specific object.
+- Trust boundaries: list where untrusted input enters (HTTP, files, queues, LLM output) and confirm it is validated there.
+- Category walk: use the `owasp-top-10` skill (plus `owasp-agentic-top-10` or `owasp-iot-top-10` when agents or devices are involved).
 
 ## Output
 - Table of findings: severity, file, line, issue, fix.

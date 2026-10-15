@@ -65,6 +65,21 @@ test('skills section lists every supporting wind', () => {
   assert.match(compose.composeAgentsMd(winds, ['a', 'b'], ['s']), /- `s` supports A, B$/m);
 });
 
+for (const [id, prefix] of [['owasp-top-10', 'A'], ['owasp-agentic-top-10', 'ASI'], ['owasp-iot-top-10', 'I']]) {
+  test(`${id} wind is optional and lists exactly ten risks with a matching skill`, () => {
+    const w = bundle.winds.find((x) => x.id === id);
+    assert.ok(w, `${id} wind exists`);
+    assert.equal(w.default, false);
+    assert.equal(w.body.match(new RegExp(`^- ${prefix}\\d+ `, 'gm'))?.length, 10);
+    assert.ok(w.skills.includes(id));
+  });
+}
+
+test('Security Review offers the OWASP Top 10 skill without duplicating its table', () => {
+  assert.ok(bundle.winds.find((w) => w.id === 'security-review').skills.includes('owasp-top-10'));
+  assert.doesNotMatch(bundle.skills['security-review-owasp'].content, /Broken Access Control/);
+});
+
 test('skillPath points at the Copilot skills folder', () => {
   assert.equal(compose.skillPath('tdd-cycle'), '.github/skills/tdd-cycle/SKILL.md');
 });

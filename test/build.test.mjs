@@ -6,8 +6,19 @@ import { buildSnippet, toSafeScriptJson, OUTPUT } from '../configurator/build.mj
 
 const snippet = buildSnippet();
 
-test('committed kite-configurator.html is up to date (run npm run build)', () => {
+test('committed pastable-kite-configurator.html is up to date (run npm run build)', () => {
   assert.equal(readFileSync(OUTPUT, 'utf8').replace(/\r\n/g, '\n'), snippet);
+});
+
+test('the single paste-ready file lives in configurator/ and says to paste it', () => {
+  assert.equal(OUTPUT.href, new URL('../configurator/pastable-kite-configurator.html', import.meta.url).href);
+  assert.match(snippet.split('\n')[0], /^<!-- Kite Configurator: paste this whole file/);
+});
+
+test('the template warns not to paste it and points at the built file', () => {
+  const firstLine = readFileSync(new URL('../configurator/template.html', import.meta.url), 'utf8').split(/\r?\n/)[0];
+  assert.match(firstLine, /DO NOT PASTE/);
+  assert.match(firstLine, / pastable-kite-configurator\.html /);
 });
 
 test('snippet is a self-contained fragment for Blogger', () => {

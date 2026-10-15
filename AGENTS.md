@@ -15,6 +15,7 @@ Immediately before implementing any prompts set up the following tasks as a chec
 - Security Review
 - Small Safe Commits
 - Scout Rule
+- Extract Determinism
 - Single Loop Learning
 - Double Loop Learning
 - Canary
@@ -51,6 +52,12 @@ Always leave the code better than you found it. Perform one of the following in 
 - Evaluate Code Coverage and add more complete tests
 - File length gate, reduce the file length of the files when over 500 lines by refactoring
 - Mutation testing, use a analysis tool to perform mutant hunting on the modified files. For example Cosmic Ray in Python or Striker in Angular.
+
+## Extract Determinism
+Anything repetitive, rule-based, or that must be exact should not be re-reasoned by the LLM each time.
+- Recommend existing deterministic tools (formatters, linters, CLIs, MCP servers) that already do the job.
+- Otherwise build one: a script, test, or MCP server, then use it instead of the LLM from then on.
+- Keep the LLM for judgment; give it deterministic tools for everything else.
 
 ## Single Loop Learning
 Learn from the tasks you complete:

@@ -122,6 +122,16 @@ test('bundleFiles omits mcp.json when no server is selected', () => {
   assert.deepEqual(compose.bundleFiles(bundle, ids('canary'), [], []).map((f) => f.path), ['AGENTS.md']);
 });
 
+test('extract-determinism wind is on by default, follows Scout Rule, and offers its skill', () => {
+  const order = bundle.winds.map((w) => w.id);
+  const w = bundle.winds.find((x) => x.id === 'extract-determinism');
+  assert.ok(w, 'extract-determinism wind exists');
+  assert.equal(w.default, true);
+  assert.equal(order.indexOf('extract-determinism'), order.indexOf('scout-rule') + 1);
+  assert.deepEqual(w.skills, ['extract-determinism']);
+  assert.match(w.body, /MCP server/);
+});
+
 test('skillPath points at the Copilot skills folder', () => {
   assert.equal(compose.skillPath('tdd-cycle'), '.github/skills/tdd-cycle/SKILL.md');
 });

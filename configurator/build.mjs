@@ -1,0 +1,30 @@
+import { readFileSync, writeFileSync } from 'node:fs';
+import { fileURLToPath } from 'node:url';
+import { loadWindBundle } from './load-winds.mjs';
+
+const here = new URL('./', import.meta.url);
+export const OUTPUT = new URL('kite-configurator.html', here);
+
+// Escapes characters that could close the <script>/CDATA block or break JS string parsing.
+export function toSafeScriptJson(value) {
+  return JSON.stringify(value)
+    .replace(/</g, '\\u003c')
+    .replace(/>/g, '\\u003e')
+    .replace(/&/g, '\\u0026')
+    .replace(/\u2028/g, '\\u2028')
+    .replace(/\u2029/g, '\\u2029');
+}
+
+export function buildSnippet(windDir = new URL('../wind/', here)) {
+  const template = readFileSync(new URL('template.html', here), 'utf8').replace(/\r\n/g, '\n');
+  const compose = readFileSync(new URL('compose.js', here), 'utf8').replace(/\r\n/g, '\n').trimEnd();
+  const data = toSafeScriptJson(loadWindBundle(windDir));
+  return template
+    .replace('/*__KITE_COMPOSE__*/', () => compose)
+    .replace('/*__KITE_DATA__*/', () => data);
+}
+
+if (process.argv[1] === fileURLToPath(import.meta.url)) {
+  writeFileSync(OUTPUT, buildSnippet());
+  console.log(`Wrote ${fileURLToPath(OUTPUT)}`);
+}

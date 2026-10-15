@@ -1,0 +1,14 @@
+{
+  "name": "kite-flying-plate-spinning",
+  "private": true,
+  "description": "Wind elements that hold your AGENTS.md kite aloft, plus a Blogger-pastable configurator.",
+  "license": "MIT",
+  "scripts": {
+    "build": "node configurator/build.mjs",
+    "test": "node --test",
+    "coverage": "node --test --experimental-test-coverage"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

@@ -10,14 +10,25 @@ Default wind reproduces [AGENTS.md](./AGENTS.md) exactly (guarded by an approval
 - `checklist:` - checklist label when it differs from `title`
 - `default: true` - checked by default
 - `skills:` - comma-separated skills in [wind/skills/](./wind/skills) that can ride along
+- `mcp:` - comma-separated MCP servers in [wind/mcp/](./wind/mcp) that can ride along
 
 Numeric filename prefixes set the order. The id is the filename without prefix.
 
+### MCP servers
+Each `wind/mcp/<name>.json` holds `name`, `title`, `description`, `repository` (https), and the VS Code
+`server` entry. Servers run with `uvx` from a git commit pinned by full SHA (supply-chain safety, OWASP ASI04);
+bump the SHA deliberately after reviewing the upstream diff.
+
+| Server | Rides with | Source |
+|---|---|---|
+| `racn` | Small Safe Commits | [JayBazuzi/RiskAwareCommitNotationMcp](https://github.com/JayBazuzi/RiskAwareCommitNotationMcp) |
+| `tdd` | Test-Driven Development | [ChrisLucian-HunterIndustries/TDD-MCP](https://github.com/ChrisLucian-HunterIndustries/TDD-MCP) |
+
 ## Configurator
 [configurator/pastable-kite-configurator.html](./configurator/pastable-kite-configurator.html) is the **one file** to paste. Its CSS, markup, script, and every
-wind element and skill are inlined - no other files, CDNs, or uploads needed.
-Check wind elements, optionally add their skills, then copy/download `AGENTS.md` and each `SKILL.md`
-(save skills to `.github/skills/<name>/SKILL.md`).
+wind element, skill, and MCP server are inlined - no other files, CDNs, or uploads needed.
+Check wind elements, optionally add their skills and MCP servers, then copy/download `AGENTS.md`, each `SKILL.md`
+(save skills to `.github/skills/<name>/SKILL.md`), and `.vscode/mcp.json` (needs [uv](https://docs.astral.sh/uv/)).
 
 The other files in `configurator/` (`template.html`, `compose.js`, ...) are build sources. Do not paste those.
 
@@ -27,6 +38,6 @@ The other files in `configurator/` (`template.html`, `compose.js`, ...) are buil
 3. If line breaks get converted to `<br>`, turn off *Settings -> Formatting -> Convert line breaks*.
 
 ### Editing wind
-1. Edit or add files in `wind/` (and `wind/skills/<name>/SKILL.md`).
+1. Edit or add files in `wind/` (and `wind/skills/<name>/SKILL.md` or `wind/mcp/<name>.json`).
 2. `npm run build` to regenerate `configurator/pastable-kite-configurator.html`.
 3. `npm test` - fails if the built file is stale or default wind drifts from `AGENTS.md`.

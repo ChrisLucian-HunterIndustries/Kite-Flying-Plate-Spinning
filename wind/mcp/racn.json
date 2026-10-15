@@ -1,0 +1,15 @@
+{
+  "name": "racn",
+  "title": "Risk-Aware Commit Notation",
+  "description": "Commits with Arlo's Risk-Aware Commit Notation (\"<risk> <intention> <comment>\") so every commit states its risk and intent. Tools: commit, git_status, notation_reference, close_theme.",
+  "repository": "https://github.com/JayBazuzi/RiskAwareCommitNotationMcp",
+  "server": {
+    "type": "stdio",
+    "command": "uvx",
+    "args": [
+      "--from",
+      "git+https://github.com/JayBazuzi/RiskAwareCommitNotationMcp@1687de2b4b486597b738bb972c61d0fdb2804e73",
+      "risk-aware-commit-notation-mcp"
+    ]
+  }
+}

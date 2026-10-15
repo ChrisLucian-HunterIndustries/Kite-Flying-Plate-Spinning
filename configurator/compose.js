@@ -12,26 +12,29 @@
     'Always use your checklist or todo list tool to track items. Do not leave it to chance that you will remember later.',
     'Immediately before implementing any prompts set up the following tasks as a checklist.',
   ];
-  var SKILLS_LEAD = 'Invoke these skills when working on the matching checklist item:';
+  var ADDON_SECTIONS = [
+    { key: 'skills', heading: '## Skills', lead: 'Invoke these skills when working on the matching checklist item:' },
+    { key: 'mcp', heading: '## MCP Servers', lead: 'Use these MCP servers when working on the matching checklist item:' },
+  ];
 
   function chosen(winds, windIds) {
     var wanted = new Set(windIds);
     return winds.filter(function (w) { return wanted.has(w.id); });
   }
 
-  function includedSkills(winds, windIds, skillNames) {
-    var wanted = new Set(skillNames);
+  function included(winds, windIds, names, key) {
+    var wanted = new Set(names);
     var byName = new Map();
     chosen(winds, windIds).forEach(function (w) {
-      (w.skills || []).filter(function (s) { return wanted.has(s); }).forEach(function (s) {
-        if (!byName.has(s)) byName.set(s, { name: s, winds: [] });
-        byName.get(s).winds.push(w.title);
+      (w[key] || []).filter(function (n) { return wanted.has(n); }).forEach(function (n) {
+        if (!byName.has(n)) byName.set(n, { name: n, winds: [] });
+        byName.get(n).winds.push(w.title);
       });
     });
     return Array.from(byName.values());
   }
 
-  function composeAgentsMd(winds, windIds, skillNames) {
+  function composeAgentsMd(winds, windIds, skillNames, mcpNames) {
     var picked = chosen(winds, windIds);
     var principles = picked.filter(function (w) { return w.kind === 'principle'; });
     var steps = picked.filter(function (w) { return w.kind === 'checklist'; });
@@ -46,18 +49,29 @@
       blocks.push('## ' + w.title + '\n' + w.body);
     });
 
-    var skills = includedSkills(winds, windIds, skillNames);
-    if (skills.length) {
-      blocks.push(['## Skills', SKILLS_LEAD].concat(skills.map(function (s) {
-        return '- `' + s.name + '` supports ' + s.winds.join(', ');
+    var selected = { skills: skillNames || [], mcp: mcpNames || [] };
+    ADDON_SECTIONS.forEach(function (section) {
+      var addons = included(winds, windIds, selected[section.key], section.key);
+      if (!addons.length) return;
+      blocks.push([section.heading, section.lead].concat(addons.map(function (a) {
+        return '- `' + a.name + '` supports ' + a.winds.join(', ');
       })).join('\n'));
-    }
+    });
     return blocks.join('\n\n') + '\n';
+  }
+
+  function composeMcpJson(catalog, names) {
+    if (!names.length) return '';
+    var servers = {};
+    names.forEach(function (n) { servers[n] = catalog[n].server; });
+    return JSON.stringify({ servers: servers }, null, 2) + '\n';
   }
 
   function skillPath(name) {
     return '.github/skills/' + name + '/SKILL.md';
   }
 
-  return { composeAgentsMd: composeAgentsMd, includedSkills: includedSkills, skillPath: skillPath };
+  return {
+    composeAgentsMd: composeAgentsMd, composeMcpJson: composeMcpJson, included: included, skillPath: skillPath,
+  };
 });

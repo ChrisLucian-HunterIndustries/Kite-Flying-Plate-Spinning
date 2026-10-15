@@ -1,0 +1,15 @@
+{
+  "name": "tdd",
+  "title": "Test-Driven Development",
+  "description": "Enforces Red, Green, Refactor: code files are written through the server, which unlocks tests or production code only when the TDD cycle allows (Python/pytest, TypeScript/vitest). Block the agent's built-in file edits so the cycle is enforced.",
+  "repository": "https://github.com/ChrisLucian-HunterIndustries/TDD-MCP",
+  "server": {
+    "type": "stdio",
+    "command": "uvx",
+    "args": [
+      "--from",
+      "git+https://github.com/ChrisLucian-HunterIndustries/TDD-MCP@69c1002a6e39109daa9ea205c4f8325fb751c2cc",
+      "test-driven-development-mcp"
+    ]
+  }
+}

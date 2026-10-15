@@ -32,8 +32,19 @@ export function toWind(fileName, text) {
     default: meta.default === 'true',
     summary: meta.summary || '',
     skills: list(meta.skills),
+    mcp: list(meta.mcp),
     body,
   };
+}
+
+function toMcp(name, text) {
+  const file = `${name}.json`;
+  const { name: declared, ...mcp } = JSON.parse(text);
+  if (declared !== name) throw new Error(`${file}: name must be "${name}"`);
+  if (!mcp.title || !mcp.description) throw new Error(`${file}: title and description are required`);
+  if (!/^https:\/\//.test(mcp.repository || '')) throw new Error(`${file}: repository must be an https URL`);
+  if (!mcp.server?.command || !Array.isArray(mcp.server.args)) throw new Error(`${file}: server needs a command and args`);
+  return mcp;
 }
 
 export function loadWindBundle(windDir) {
@@ -51,5 +62,12 @@ export function loadWindBundle(windDir) {
     if (meta.name !== name) throw new Error(`${name}/SKILL.md: name must be "${name}"`);
     skills[name] = { description: meta.description || '', content };
   }
-  return { winds, skills };
+
+  const mcp = {};
+  for (const name of new Set(winds.flatMap((w) => w.mcp))) {
+    const file = new URL(`mcp/${name}.json`, windDir);
+    if (!existsSync(file)) throw new Error(`MCP server "${name}" has no wind/mcp/${name}.json`);
+    mcp[name] = toMcp(name, readFileSync(file, 'utf8'));
+  }
+  return { winds, skills, mcp };
 }

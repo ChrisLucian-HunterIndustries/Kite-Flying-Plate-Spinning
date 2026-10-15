@@ -49,12 +49,14 @@ test('skills are listed only when their wind is selected', () => {
   assert.doesNotMatch(md, /mutation-testing/);
 });
 
-test('includedSkills dedupes and records every supporting wind', () => {
+test('included dedupes and records every supporting wind, per add-on key', () => {
   const winds = [
-    { id: 'a', title: 'A', kind: 'checklist', skills: ['s'] },
-    { id: 'b', title: 'B', kind: 'checklist', skills: ['s'] },
+    { id: 'a', title: 'A', kind: 'checklist', skills: ['s'], mcp: ['m'] },
+    { id: 'b', title: 'B', kind: 'checklist', skills: ['s'], mcp: [] },
   ];
-  assert.deepEqual(compose.includedSkills(winds, ['a', 'b'], ['s']), [{ name: 's', winds: ['A', 'B'] }]);
+  assert.deepEqual(compose.included(winds, ['a', 'b'], ['s'], 'skills'), [{ name: 's', winds: ['A', 'B'] }]);
+  assert.deepEqual(compose.included(winds, ['a', 'b'], ['m'], 'mcp'), [{ name: 'm', winds: ['A'] }]);
+  assert.deepEqual(compose.included(winds, ['b'], ['m'], 'mcp'), []);
 });
 
 test('skills section lists every supporting wind', () => {
@@ -78,6 +80,34 @@ for (const [id, prefix] of [['owasp-top-10', 'A'], ['owasp-agentic-top-10', 'ASI
 test('Security Review offers the OWASP Top 10 skill without duplicating its table', () => {
   assert.ok(bundle.winds.find((w) => w.id === 'security-review').skills.includes('owasp-top-10'));
   assert.doesNotMatch(bundle.skills['security-review-owasp'].content, /Broken Access Control/);
+});
+
+test('MCP servers are listed only when their wind is selected, after skills', () => {
+  const md = compose.composeAgentsMd(bundle.winds, ids('small-safe-commits'), ['small-safe-commits'], ['racn', 'tdd']);
+  assert.match(md, /## MCP Servers\nUse these MCP servers/);
+  assert.match(md, /^- `racn` supports Small Safe Commits$/m);
+  assert.doesNotMatch(md, /`tdd`/);
+  assert.ok(md.indexOf('## Skills') < md.indexOf('## MCP Servers'));
+});
+
+test('composeMcpJson merges selected servers into VS Code .vscode/mcp.json', () => {
+  const json = compose.composeMcpJson(bundle.mcp, ['racn', 'tdd']);
+  assert.ok(json.endsWith('}\n'));
+  assert.deepEqual(JSON.parse(json), { servers: { racn: bundle.mcp.racn.server, tdd: bundle.mcp.tdd.server } });
+  assert.equal(compose.composeMcpJson(bundle.mcp, []), '');
+});
+
+for (const [windId, server] of [['small-safe-commits', 'racn'], ['test-driven-development', 'tdd']]) {
+  test(`${windId} wind offers the ${server} MCP server`, () => {
+    assert.deepEqual(bundle.winds.find((w) => w.id === windId).mcp, [server]);
+  });
+}
+
+test('every MCP server runs from a git commit pinned by full SHA (supply chain, ASI04)', () => {
+  for (const [name, m] of Object.entries(bundle.mcp)) {
+    const from = m.server.args[m.server.args.indexOf('--from') + 1];
+    assert.match(from, new RegExp(`^git\\+${m.repository.replace(/[.]/g, '\\.')}@[0-9a-f]{40}$`), name);
+  }
 });
 
 test('skillPath points at the Copilot skills folder', () => {

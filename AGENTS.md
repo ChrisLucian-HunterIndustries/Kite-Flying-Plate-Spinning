@@ -31,6 +31,7 @@ The resulting code should be easy to read, limited in file length, appropriately
 
 ## Make the easy change
 Complete the prompt considering YAGNI and DRY concepts in software development. 
+Prefer the project's existing toolchain over adding a new language or tool; check whether it already does the job first.
 
 ## Security Review
 Evaluate for common OWASP pitfalls using the current OWASP Top 10 lists that fit the system (Web, Agentic, IoT).

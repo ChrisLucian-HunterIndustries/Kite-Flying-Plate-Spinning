@@ -1,5 +1,5 @@
 # Agent Instructions
-Always reply to me in information dense bullets.
+Minimize necessary reading, always talk to me using Information Dense prioritized information.
 Favor YAGNI.
 Favor LEAN and Elimination of LEAN deadly wastes.
 Always create the below checklist for every prompt:

@@ -27,10 +27,19 @@ bump the SHA deliberately after reviewing the upstream diff.
 ## Configurator
 [configurator/pastable-kite-configurator.html](./configurator/pastable-kite-configurator.html) is the **one file** to paste. Its CSS, markup, script, and every
 wind element, skill, and MCP server are inlined - no other files, CDNs, or uploads needed.
-Check wind elements, optionally add their skills and MCP servers, then copy/download `AGENTS.md`, each `SKILL.md`
-(save skills to `.github/skills/<name>/SKILL.md`), and `.vscode/mcp.json` (needs [uv](https://docs.astral.sh/uv/)).
+Check wind elements, optionally add their skills and MCP servers, then copy/download `AGENTS.md`, each `SKILL.md`,
+and the MCP config (needs [uv](https://docs.astral.sh/uv/)). The **Platform** dropdown picks where those land:
+
+| Platform | Skills | MCP config | Sub agent tool |
+|---|---|---|---|
+| GitHub Copilot (default) | `.github/skills/` | `.vscode/mcp.json` (`servers`) | `runSubagent` |
+| Claude Code | `.claude/skills/` | `.mcp.json` (`mcpServers`) | `Agent` |
+| Open standards | `.agents/skills/` ([Agent Skills](https://agentskills.io/)) | `.mcp.json` (`mcpServers`) | generic |
+
+The **Orchestrator** toggle adds an `## Orchestrator` section: the main agent delegates each checklist item to a
+sub agent (via that platform's tool) and reviews the result instead of doing the work itself.
 The floating **Download all** button (visible while the configurator is on screen) saves everything as
-`kite-agents.zip`, laid out to unzip straight into a repo root: `AGENTS.md`, `.vscode/mcp.json`, `.github/skills/`.
+`kite-agents.zip`, laid out to unzip straight into a repo root.
 
 The other files in `configurator/` (`template.html`, `compose.js`, ...) are build sources. Do not paste those.
 

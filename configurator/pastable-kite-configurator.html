@@ -40,6 +40,11 @@
 <button type="button" data-kc="no-mcp">No MCP</button>
 <span class="kc-meter" data-kc-meter=""> </span>
 </div>
+<fieldset><legend>Agent</legend>
+<label>Platform: <select data-kc-option="platform"> </select></label>
+<div class="kc-wind"><label><input type="checkbox" data-kc-option="orchestrator" /> <strong>Orchestrator</strong></label>
+<span class="kc-summary">AGENTS.md delegates each checklist item to a sub agent instead of doing it itself.</span></div>
+</fieldset>
 <fieldset><legend>Principles</legend><div data-kc-kind="principle"> </div></fieldset>
 <fieldset><legend>Checklist wind</legend><div data-kc-kind="checklist"> </div></fieldset>
 <h4>AGENTS.md</h4>
@@ -50,17 +55,17 @@
 <textarea data-kc-output="agents" rows="18" readonly="readonly" spellcheck="false" aria-label="Generated AGENTS.md"> </textarea>
 <h4>Skills <small>(save each to the path shown)</small></h4>
 <div data-kc-skills=""> </div>
-<h4>MCP servers <small>(save as .vscode/mcp.json, or merge into its "servers"; needs uv)</small></h4>
+<h4>MCP servers <small data-kc-mcp-hint=""> </small></h4>
 <div data-kc-mcp="">
 <div class="kc-bar">
 <button type="button" data-kc-copy="mcp">Copy</button>
 <button type="button" data-kc-download="mcp">Download</button>
 </div>
-<textarea data-kc-output="mcp" rows="12" readonly="readonly" spellcheck="false" aria-label="Generated .vscode/mcp.json"> </textarea>
+<textarea data-kc-output="mcp" rows="12" readonly="readonly" spellcheck="false" aria-label="Generated MCP config"> </textarea>
 <ul data-kc-mcp-list=""> </ul>
 </div>
 <p class="kc-empty" data-kc-mcp-empty="">No MCP servers selected.</p>
-<button type="button" class="kc-primary kc-float" data-kc-download="all" hidden="hidden" title="AGENTS.md, .vscode/mcp.json, and .github/skills/ in one zip"> </button>
+<button type="button" class="kc-primary kc-float" data-kc-download="all" hidden="hidden" title="AGENTS.md, MCP config, and skills in one zip"> </button>
 <script>
 //<![CDATA[
 /* Pure AGENTS.md composer. UMD: inlined into the Blogger snippet and required by Node tests. */
@@ -82,8 +87,29 @@
     { key: 'mcp', heading: '## MCP Servers', lead: 'Use these MCP servers when working on the matching checklist item:' },
   ];
   var PLATFORMS = {
-    copilot: { skillsDir: '.github/skills', mcpPath: '.vscode/mcp.json', mcpKey: 'servers' },
+    copilot: {
+      label: 'GitHub Copilot', skillsDir: '.github/skills', mcpPath: '.vscode/mcp.json', mcpKey: 'servers',
+      subagentTool: 'the `runSubagent` tool',
+    },
+    claude: {
+      label: 'Claude Code', skillsDir: '.claude/skills', mcpPath: '.mcp.json', mcpKey: 'mcpServers',
+      subagentTool: 'the `Agent` tool',
+    },
+    open: {
+      label: 'Open standards (AGENTS.md, Agent Skills, MCP)', skillsDir: '.agents/skills', mcpPath: '.mcp.json',
+      mcpKey: 'mcpServers', subagentTool: 'your sub agent tool',
+    },
   };
+
+  function orchestratorSection(platform) {
+    return [
+      '## Orchestrator',
+      'You are the orchestrator: delegate the work to sub agents instead of doing it yourself.',
+      '- Start one sub agent per checklist item, in checklist order, with ' + platform.subagentTool + '.',
+      '- Give each sub agent its checklist item, the matching section below, and only the context it needs.',
+      '- Check each result before marking its item complete; re-delegate with feedback when it falls short.',
+    ].join('\n');
+  }
   var DEFAULT_PLATFORM = 'copilot';
 
   function platformOf(options) {
@@ -107,7 +133,7 @@
     return Array.from(byName.values());
   }
 
-  function composeAgentsMd(winds, windIds, skillNames, mcpNames) {
+  function composeAgentsMd(winds, windIds, skillNames, mcpNames, options) {
     var picked = chosen(winds, windIds);
     var principles = picked.filter(function (w) { return w.kind === 'principle'; });
     var steps = picked.filter(function (w) { return w.kind === 'checklist'; });
@@ -118,6 +144,7 @@
     if (steps.length) {
       blocks.push(MANIFESTO.concat(steps.map(function (w) { return '- ' + w.checklist; })).join('\n'));
     }
+    if (options && options.orchestrator) blocks.push(orchestratorSection(platformOf(options)));
     steps.filter(function (w) { return w.body; }).forEach(function (w) {
       blocks.push('## ' + w.title + '\n' + w.body);
     });
@@ -154,7 +181,7 @@
     var names = function (key, picked) {
       return included(data.winds, windIds, picked, key).map(function (a) { return a.name; });
     };
-    var files = [{ path: 'AGENTS.md', content: composeAgentsMd(data.winds, windIds, skillNames, mcpNames) }];
+    var files = [{ path: 'AGENTS.md', content: composeAgentsMd(data.winds, windIds, skillNames, mcpNames, options) }];
     var mcpJson = composeMcpJson(data.mcp, names('mcp', mcpNames), options);
     if (mcpJson) files.push({ path: mcpPath(options), content: mcpJson });
     names('skills', skillNames).forEach(function (n) {
@@ -165,7 +192,7 @@
 
   return {
     composeAgentsMd: composeAgentsMd, composeMcpJson: composeMcpJson, included: included,
-    skillPath: skillPath, mcpPath: mcpPath, bundleFiles: bundleFiles,
+    skillPath: skillPath, mcpPath: mcpPath, bundleFiles: bundleFiles, platforms: PLATFORMS,
   };
 });
 /* Minimal dependency-free ZIP writer (stored, UTF-8 names). UMD: inlined into the Blogger snippet and required by Node tests. */
@@ -247,7 +274,7 @@
   var Z = window.KiteZip;
   var root = document.getElementById('kite-cfg');
   var $ = function (sel) { return root.querySelector(sel); };
-  var state = { wind: new Set(), skill: new Set(), mcp: new Set() };
+  var state = { wind: new Set(), skill: new Set(), mcp: new Set(), platform: 'copilot', orchestrator: false };
   var OUTPUTS = { agents: 'AGENTS.md', mcp: 'mcp.json' };
   var ZIP_NAME = 'kite-agents.zip';
   var output = function (name) { return $('[data-kc-output="' + name + '"]'); };
@@ -322,7 +349,7 @@
     var area = el('textarea', { rows: '10', readonly: '', spellcheck: 'false' });
     area.value = text;
     return el('details', {}, [
-      el('summary', { text: C.skillPath(skill.name) + '  (' + skill.winds.join(', ') + ')' }),
+      el('summary', { text: C.skillPath(skill.name, options()) + '  (' + skill.winds.join(', ') + ')' }),
       el('div', { 'class': 'kc-bar' }, [copy, save]), area,
     ]);
   }
@@ -341,9 +368,13 @@
     return [Array.from(state.wind), Array.from(state.skill), Array.from(state.mcp)];
   }
 
+  function options() {
+    return { platform: state.platform, orchestrator: state.orchestrator };
+  }
+
   function downloadAll() {
     var s = selection();
-    download(ZIP_NAME, Z.createZip(C.bundleFiles(DATA, s[0], s[1], s[2])), 'application/zip');
+    download(ZIP_NAME, Z.createZip(C.bundleFiles(DATA, s[0], s[1], s[2], options())), 'application/zip');
   }
 
   function followWhileVisible(button) {
@@ -363,7 +394,7 @@
       box.checked = state[kind].has(box.value);
       if (kind !== 'wind') box.disabled = !state.wind.has(box.closest('.kc-wind').querySelector('[data-kc-check="wind"]').value);
     });
-    output('agents').value = C.composeAgentsMd(DATA.winds, windIds, skillNames, mcpNames);
+    output('agents').value = C.composeAgentsMd(DATA.winds, windIds, skillNames, mcpNames, options());
     $('[data-kc-meter]').textContent = 'Wind: ' + state.wind.size + '/' + DATA.winds.length + ' \uD83E\uDE81';
 
     var skills = C.included(DATA.winds, windIds, skillNames, 'skills');
@@ -373,14 +404,16 @@
     skills.forEach(function (s) { list.appendChild(skillCard(s)); });
 
     var servers = C.included(DATA.winds, windIds, mcpNames, 'mcp');
-    output('mcp').value = C.composeMcpJson(DATA.mcp, servers.map(function (s) { return s.name; }));
+    var platform = C.platforms[state.platform];
+    output('mcp').value = C.composeMcpJson(DATA.mcp, servers.map(function (s) { return s.name; }), options());
+    $('[data-kc-mcp-hint]').textContent = '(save as ' + platform.mcpPath + ', or merge into its "' + platform.mcpKey + '"; needs uv)';
     $('[data-kc-mcp]').hidden = !servers.length;
     $('[data-kc-mcp-empty]').hidden = !!servers.length;
     var mcpList = $('[data-kc-mcp-list]');
     mcpList.textContent = '';
     servers.forEach(function (s) { mcpList.appendChild(mcpItem(s)); });
 
-    var count = C.bundleFiles(DATA, windIds, skillNames, mcpNames).length;
+    var count = C.bundleFiles(DATA, windIds, skillNames, mcpNames, options()).length;
     $('[data-kc-download="all"]').textContent = '\u2B07 Download all (.zip, ' + count + (count === 1 ? ' file)' : ' files)');
   }
 
@@ -399,8 +432,20 @@
   };
 
   DATA.winds.forEach(function (w) { root.querySelector('[data-kc-kind="' + w.kind + '"]').appendChild(windRow(w)); });
+  var platformSelect = $('[data-kc-option="platform"]');
+  platformSelect.textContent = '';
+  Object.keys(C.platforms).forEach(function (id) {
+    platformSelect.appendChild(el('option', { value: id, text: C.platforms[id].label }));
+  });
+  platformSelect.value = state.platform;
 
   root.addEventListener('change', function (e) {
+    var option = e.target.getAttribute('data-kc-option');
+    if (option) {
+      state[option] = e.target.type === 'checkbox' ? e.target.checked : e.target.value;
+      render();
+      return;
+    }
     var kind = e.target.getAttribute('data-kc-check');
     if (!kind) return;
     if (e.target.checked) state[kind].add(e.target.value); else state[kind].delete(e.target.value);

@@ -135,3 +135,40 @@ test('extract-determinism wind is on by default, follows Scout Rule, and offers 
 test('skillPath points at the Copilot skills folder', () => {
   assert.equal(compose.skillPath('tdd-cycle'), '.github/skills/tdd-cycle/SKILL.md');
 });
+
+for (const [platform, mcpPath, mcpKey, skillsDir] of [
+  ['copilot', '.vscode/mcp.json', 'servers', '.github/skills'],
+  ['claude', '.mcp.json', 'mcpServers', '.claude/skills'],
+  ['open', '.mcp.json', 'mcpServers', '.agents/skills'],
+]) {
+  test(`${platform} platform lays out its own MCP config and skills folder`, () => {
+    const options = { platform };
+    const files = compose.bundleFiles(bundle, ids('small-safe-commits'), ['small-safe-commits'], ['racn'], options);
+    assert.deepEqual(files.map((f) => f.path), ['AGENTS.md', mcpPath, `${skillsDir}/small-safe-commits/SKILL.md`]);
+    assert.deepEqual(Object.keys(JSON.parse(files[1].content)), [mcpKey]);
+    assert.ok(compose.platforms[platform].label);
+  });
+}
+
+test('platforms are offered as Copilot, Claude, then Open standards', () => {
+  assert.deepEqual(Object.keys(compose.platforms), ['copilot', 'claude', 'open']);
+});
+
+test('orchestrator is off by default and leaves AGENTS.md unchanged', () => {
+  assert.equal(
+    compose.composeAgentsMd(bundle.winds, defaults, [], [], { orchestrator: false }),
+    compose.composeAgentsMd(bundle.winds, defaults, [], []),
+  );
+  assert.doesNotMatch(compose.composeAgentsMd(bundle.winds, defaults, []), /Orchestrator/);
+});
+
+for (const [platform, tool] of [['copilot', /`runSubagent`/], ['claude', /`Agent` tool/], ['open', /sub agent tool/]]) {
+  test(`orchestrator mode on ${platform} delegates every checklist item to sub agents`, () => {
+    const md = compose.composeAgentsMd(bundle.winds, defaults, [], [], { platform, orchestrator: true });
+    const section = md.slice(md.indexOf('## Orchestrator'));
+    assert.ok(md.indexOf('## Checklist Manifesto') < md.indexOf('## Orchestrator'));
+    assert.ok(md.indexOf('## Orchestrator') < md.indexOf('## Prod Check'));
+    assert.match(section, /delegate/i);
+    assert.match(section, tool);
+  });
+}

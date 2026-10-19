@@ -16,6 +16,14 @@
     { key: 'skills', heading: '## Skills', lead: 'Invoke these skills when working on the matching checklist item:' },
     { key: 'mcp', heading: '## MCP Servers', lead: 'Use these MCP servers when working on the matching checklist item:' },
   ];
+  var PLATFORMS = {
+    copilot: { skillsDir: '.github/skills', mcpPath: '.vscode/mcp.json', mcpKey: 'servers' },
+  };
+  var DEFAULT_PLATFORM = 'copilot';
+
+  function platformOf(options) {
+    return PLATFORMS[(options && options.platform) || DEFAULT_PLATFORM];
+  }
 
   function chosen(winds, windIds) {
     var wanted = new Set(windIds);
@@ -60,32 +68,38 @@
     return blocks.join('\n\n') + '\n';
   }
 
-  function composeMcpJson(catalog, names) {
+  function composeMcpJson(catalog, names, options) {
     if (!names.length) return '';
     var servers = {};
     names.forEach(function (n) { servers[n] = catalog[n].server; });
-    return JSON.stringify({ servers: servers }, null, 2) + '\n';
+    var config = {};
+    config[platformOf(options).mcpKey] = servers;
+    return JSON.stringify(config, null, 2) + '\n';
   }
 
-  function skillPath(name) {
-    return '.github/skills/' + name + '/SKILL.md';
+  function mcpPath(options) {
+    return platformOf(options).mcpPath;
   }
 
-  function bundleFiles(data, windIds, skillNames, mcpNames) {
+  function skillPath(name, options) {
+    return platformOf(options).skillsDir + '/' + name + '/SKILL.md';
+  }
+
+  function bundleFiles(data, windIds, skillNames, mcpNames, options) {
     var names = function (key, picked) {
       return included(data.winds, windIds, picked, key).map(function (a) { return a.name; });
     };
     var files = [{ path: 'AGENTS.md', content: composeAgentsMd(data.winds, windIds, skillNames, mcpNames) }];
-    var mcpJson = composeMcpJson(data.mcp, names('mcp', mcpNames));
-    if (mcpJson) files.push({ path: '.vscode/mcp.json', content: mcpJson });
+    var mcpJson = composeMcpJson(data.mcp, names('mcp', mcpNames), options);
+    if (mcpJson) files.push({ path: mcpPath(options), content: mcpJson });
     names('skills', skillNames).forEach(function (n) {
-      files.push({ path: skillPath(n), content: data.skills[n].content });
+      files.push({ path: skillPath(n, options), content: data.skills[n].content });
     });
     return files;
   }
 
   return {
     composeAgentsMd: composeAgentsMd, composeMcpJson: composeMcpJson, included: included,
-    skillPath: skillPath, bundleFiles: bundleFiles,
+    skillPath: skillPath, mcpPath: mcpPath, bundleFiles: bundleFiles,
   };
 });

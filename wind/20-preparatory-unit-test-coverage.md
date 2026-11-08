@@ -7,3 +7,4 @@ skills: characterization-tests
 ---
 Ensure the area that will be changed has approrpriate characterization tests making it safe to refactor.
 Ensure characterization tests pass before starting any refactoring. 
+When fixing a reported bug, first write a test that reproduces it and watch it fail.

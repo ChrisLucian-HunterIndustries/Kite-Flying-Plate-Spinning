@@ -16,6 +16,35 @@
     { key: 'skills', heading: '## Skills', lead: 'Invoke these skills when working on the matching checklist item:' },
     { key: 'mcp', heading: '## MCP Servers', lead: 'Use these MCP servers when working on the matching checklist item:' },
   ];
+  var PLATFORMS = {
+    copilot: {
+      label: 'GitHub Copilot', skillsDir: '.github/skills', mcpPath: '.vscode/mcp.json', mcpKey: 'servers',
+      subagentTool: 'the `runSubagent` tool',
+    },
+    claude: {
+      label: 'Claude Code', skillsDir: '.claude/skills', mcpPath: '.mcp.json', mcpKey: 'mcpServers',
+      subagentTool: 'the `Agent` tool',
+    },
+    open: {
+      label: 'Open standards (AGENTS.md, Agent Skills, MCP)', skillsDir: '.agents/skills', mcpPath: '.mcp.json',
+      mcpKey: 'mcpServers', subagentTool: 'your sub agent tool',
+    },
+  };
+
+  function orchestratorSection(platform) {
+    return [
+      '## Orchestrator',
+      'You are the orchestrator: delegate the work to sub agents instead of doing it yourself.',
+      '- Start one sub agent per checklist item, in checklist order, with ' + platform.subagentTool + '.',
+      '- Give each sub agent its checklist item, the matching section below, and only the context it needs.',
+      '- Check each result before marking its item complete; re-delegate with feedback when it falls short.',
+    ].join('\n');
+  }
+  var DEFAULT_PLATFORM = 'copilot';
+
+  function platformOf(options) {
+    return PLATFORMS[(options && options.platform) || DEFAULT_PLATFORM];
+  }
 
   function chosen(winds, windIds) {
     var wanted = new Set(windIds);
@@ -34,7 +63,7 @@
     return Array.from(byName.values());
   }
 
-  function composeAgentsMd(winds, windIds, skillNames, mcpNames) {
+  function composeAgentsMd(winds, windIds, skillNames, mcpNames, options) {
     var picked = chosen(winds, windIds);
     var principles = picked.filter(function (w) { return w.kind === 'principle'; });
     var steps = picked.filter(function (w) { return w.kind === 'checklist'; });
@@ -45,6 +74,7 @@
     if (steps.length) {
       blocks.push(MANIFESTO.concat(steps.map(function (w) { return '- ' + w.checklist; })).join('\n'));
     }
+    if (options && options.orchestrator) blocks.push(orchestratorSection(platformOf(options)));
     steps.filter(function (w) { return w.body; }).forEach(function (w) {
       blocks.push('## ' + w.title + '\n' + w.body);
     });
@@ -60,18 +90,38 @@
     return blocks.join('\n\n') + '\n';
   }
 
-  function composeMcpJson(catalog, names) {
+  function composeMcpJson(catalog, names, options) {
     if (!names.length) return '';
     var servers = {};
     names.forEach(function (n) { servers[n] = catalog[n].server; });
-    return JSON.stringify({ servers: servers }, null, 2) + '\n';
+    var config = {};
+    config[platformOf(options).mcpKey] = servers;
+    return JSON.stringify(config, null, 2) + '\n';
   }
 
-  function skillPath(name) {
-    return '.github/skills/' + name + '/SKILL.md';
+  function mcpPath(options) {
+    return platformOf(options).mcpPath;
+  }
+
+  function skillPath(name, options) {
+    return platformOf(options).skillsDir + '/' + name + '/SKILL.md';
+  }
+
+  function bundleFiles(data, windIds, skillNames, mcpNames, options) {
+    var names = function (key, picked) {
+      return included(data.winds, windIds, picked, key).map(function (a) { return a.name; });
+    };
+    var files = [{ path: 'AGENTS.md', content: composeAgentsMd(data.winds, windIds, skillNames, mcpNames, options) }];
+    var mcpJson = composeMcpJson(data.mcp, names('mcp', mcpNames), options);
+    if (mcpJson) files.push({ path: mcpPath(options), content: mcpJson });
+    names('skills', skillNames).forEach(function (n) {
+      files.push({ path: skillPath(n, options), content: data.skills[n].content });
+    });
+    return files;
   }
 
   return {
-    composeAgentsMd: composeAgentsMd, composeMcpJson: composeMcpJson, included: included, skillPath: skillPath,
+    composeAgentsMd: composeAgentsMd, composeMcpJson: composeMcpJson, included: included,
+    skillPath: skillPath, mcpPath: mcpPath, bundleFiles: bundleFiles, platforms: PLATFORMS,
   };
 });

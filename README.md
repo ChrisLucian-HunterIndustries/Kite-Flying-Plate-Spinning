@@ -27,15 +27,30 @@ bump the SHA deliberately after reviewing the upstream diff.
 ## Configurator
 [configurator/pastable-kite-configurator.html](./configurator/pastable-kite-configurator.html) is the **one file** to paste. Its CSS, markup, script, and every
 wind element, skill, and MCP server are inlined - no other files, CDNs, or uploads needed.
-Check wind elements, optionally add their skills and MCP servers, then copy/download `AGENTS.md`, each `SKILL.md`
-(save skills to `.github/skills/<name>/SKILL.md`), and `.vscode/mcp.json` (needs [uv](https://docs.astral.sh/uv/)).
+Check wind elements, optionally add their skills and MCP servers, then copy/download `AGENTS.md`, each `SKILL.md`,
+and the MCP config (needs [uv](https://docs.astral.sh/uv/)). The **Platform** dropdown picks where those land:
+
+| Platform | Skills | MCP config | Sub agent tool |
+|---|---|---|---|
+| GitHub Copilot (default) | `.github/skills/` | `.vscode/mcp.json` (`servers`) | `runSubagent` |
+| Claude Code | `.claude/skills/` | `.mcp.json` (`mcpServers`) | `Agent` |
+| Open standards | `.agents/skills/` ([Agent Skills](https://agentskills.io/)) | `.mcp.json` (`mcpServers`) | generic |
+
+The **Orchestrator** toggle adds an `## Orchestrator` section: the main agent delegates each checklist item to a
+sub agent (via that platform's tool) and reviews the result instead of doing the work itself.
+The floating **Download all** button (visible while the configurator is on screen) saves everything as
+`kite-agents.zip`, laid out to unzip straight into a repo root.
 
 The other files in `configurator/` (`template.html`, `compose.js`, ...) are build sources. Do not paste those.
 
 ### Hosting on Blogger (or similar)
 1. Open [configurator/pastable-kite-configurator.html](./configurator/pastable-kite-configurator.html) and copy the whole file (on GitHub: **Raw**, then select all).
-2. Blogger: **Layout -> Add a Gadget -> HTML/JavaScript**, or a post's **HTML view**, and paste.
-3. If line breaks get converted to `<br>`, turn off *Settings -> Formatting -> Convert line breaks*.
+2. Paste it into **one** of:
+   - **Layout -> Add a Gadget -> HTML/JavaScript** -> *Content* box -> **Save**, or
+   - a post or page, switched to **HTML view** (the `<>` toggle), then **Publish**.
+3. **Not** *Theme -> Edit HTML*: that editor replaces your whole theme and fails with
+   "There should be one and only one skin in the theme, and we found: 0".
+4. If line breaks get converted to `<br>`, turn off *Settings -> Formatting -> Convert line breaks*.
 
 ### Editing wind
 1. Edit or add files in `wind/` (and `wind/skills/<name>/SKILL.md` or `wind/mcp/<name>.json`).

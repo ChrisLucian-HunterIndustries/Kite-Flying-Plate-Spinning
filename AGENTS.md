@@ -12,6 +12,7 @@ Immediately before implementing any prompts set up the following tasks as a chec
 - Prepare a list of code smells to reference in the next step
 - Make it easy to change (which may be hard) (refactoring)
 - Make the easy change
+- End to End Test Coverage
 - Security Review
 - Small Safe Commits
 - Scout Rule
@@ -37,6 +38,10 @@ Complete the prompt considering YAGNI and DRY concepts in software development.
 Before implementing, read every available skill whose description matches the area being changed, not just the first one.
 Prefer the project's existing toolchain over adding a new language or tool; check whether it already does the job first.
 For UI changes, verify in a real browser by asserting on DOM state and downloaded output, not only screenshots.
+
+## End to End Test Coverage
+When applicable, ensure the change has appropriate end to end tests that exercise the real system the way a user would.
+Ensure end to end tests pass before declaring the prompt complete.
 
 ## Security Review
 Evaluate for common OWASP pitfalls using the current OWASP Top 10 lists that fit the system (Web, Agentic, IoT).
